@@ -17,4 +17,9 @@ public interface NewsArticleRepository extends JpaRepository<NewsArticle, UUID> 
     List<NewsArticle> findBySourceNameIgnoreCaseOrderByPublicationDateDesc(String sourceName);
     @Query("SELECT n FROM NewsArticle n WHERE LOWER(n.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(n.description) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY n.relevanceScore DESC")
     List<NewsArticle> searchByQuery(@Param("query") String query);
+
+    @Query("SELECT n FROM NewsArticle n " +
+            "WHERE LOWER(n.title) LIKE %:keyword% " +
+            "OR LOWER(n.description) LIKE %:keyword%")
+    List<NewsArticle> findByKeyword(@Param("keyword") String keyword);
 }

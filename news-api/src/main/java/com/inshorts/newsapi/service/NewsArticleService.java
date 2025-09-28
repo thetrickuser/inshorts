@@ -13,6 +13,11 @@ import java.util.stream.Collectors;
 @Service
 public class NewsArticleService {
 
+    private static final double TITLE_WEIGHT = 2.0;
+    private static final Set<String> STOPWORDS = Set.of(
+            "the", "and", "a", "an", "of", "in", "on", "about", "for", "to", "with", "at", "by", "from"
+    );
+
     private final NewsArticleRepository repository;
 
     public NewsArticleService(NewsArticleRepository repository) {
@@ -30,8 +35,60 @@ public class NewsArticleService {
     }
 
     public List<NewsArticleDTO> searchByQuery(String query) {
-        return repository.searchByQuery(query)
-                .stream().map(NewsArticleMapper::toDTO).toList();
+        // 1. Tokenize and clean query
+        List<String> keywords = Arrays.stream(query.toLowerCase().split("\\W+"))
+                .filter(k -> k.length() > 2 && !STOPWORDS.contains(k))
+                .toList();
+
+        if (keywords.isEmpty()) return Collections.emptyList();
+
+        // 2. Map to store article scores
+        Map<NewsArticle, Double> articleScores = new HashMap<>();
+
+        // 3. Iterate keywords
+        for (String keyword : keywords) {
+            List<NewsArticle> matchedArticles = repository.findByKeyword(keyword);
+            for (NewsArticle article : matchedArticles) {
+                double score = articleScores.getOrDefault(article, 0.0);
+
+                // Count occurrences in title
+                int titleMatches = countOccurrences(article.getTitle(), keyword);
+                // Count occurrences in description
+                int descMatches = countOccurrences(article.getDescription(), keyword);
+
+                // Calculate weighted score
+                score += TITLE_WEIGHT * titleMatches + descMatches;
+
+                // Multiply by relevanceScore from DB
+                score *= article.getRelevanceScore();
+
+                articleScores.put(article, score);
+            }
+        }
+
+        // 4. Sort articles by final score descending
+        List<NewsArticle> sortedArticles = articleScores.entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .map(Map.Entry::getKey)
+                .toList();
+
+        // 5. Convert to DTOs
+        return sortedArticles.stream()
+                .map(NewsArticleMapper::toDTO)
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+    // Utility method to count keyword occurrences in text
+    private int countOccurrences(String text, String keyword) {
+        if (text == null) return 0;
+        text = text.toLowerCase();
+        int count = 0, idx = 0;
+        while ((idx = text.indexOf(keyword, idx)) != -1) {
+            count++;
+            idx += keyword.length();
+        }
+        return count;
     }
 
     public List<NewsArticleDTO> getBySource(String source) {
