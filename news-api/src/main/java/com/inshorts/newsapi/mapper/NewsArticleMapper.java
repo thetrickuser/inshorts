@@ -33,7 +33,8 @@ public class NewsArticleMapper {
             entity.getCategory(),
             entity.getRelevanceScore(),
             entity.getLatitude(),
-            entity.getLongitude()
+            entity.getLongitude(),
+                null
         );
     }
 }

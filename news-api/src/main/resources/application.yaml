@@ -19,3 +19,7 @@ server:
   servlet:
     context-path: "/api/v1"
 
+openrouter:
+  apiKey: ${OPENROUTER_API_KEY}
+  modelId: x-ai/grok-4-fast:free
+

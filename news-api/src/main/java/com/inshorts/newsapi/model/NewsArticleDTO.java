@@ -28,4 +28,5 @@ public class NewsArticleDTO {
     private double relevanceScore;
     private double latitude;
     private double longitude;
+    private String llmSummary; // New field for LLM-generated summary
 }
