@@ -3,12 +3,11 @@ FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
 # Copy pom.xml and download dependencies first (caches better)
-RUN cd news-api
-COPY pom.xml .
+COPY news-api/pom.xml .
 RUN mvn dependency:go-offline
 
 # Copy source code and build
-COPY src ./src
+COPY news-api/src ./src
 RUN mvn clean package -DskipTests
 
 # Step 2: Run the app
