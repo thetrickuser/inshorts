@@ -26,7 +26,7 @@ public class NewsArticleService {
 
     public List<NewsArticleDTO> getByCategory(String category) {
         return repository.findByCategoryIgnoreCaseOrderByPublicationDateDesc(category)
-                .stream().map(NewsArticleMapper::toDTO).toList();
+                .stream().map(NewsArticleMapper::toDTO).limit(5).toList();
     }
 
     public List<NewsArticleDTO> getByMinScore(double minScore) {

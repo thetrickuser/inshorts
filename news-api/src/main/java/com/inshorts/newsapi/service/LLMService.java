@@ -13,17 +13,23 @@ public class LLMService {
 
     public LlmIntentResponse processQuery(String userQuery) {
         String prompt = """
-            You are a system that extracts structured JSON with:
-            - "intent": one of ["category","source","search","nearby","score"]
-            - "entities": list of important names, places, topics.
-
-            Return ONLY JSON. No explanations.
-
-            Example:
-            {"intent":"nearby","entities":["Elon Musk","Twitter","Palo Alto"]}
-
-            QUERY: %s
-            """.formatted(userQuery);
+                You are an assistant that analyzes news queries.
+                
+                         Task:
+                         - Extract named entities (people, organizations, locations, events).
+                         - Identify the user's intent as one of ["category", "source", "nearby", "search"].
+                         - When intent is "nearby", ensure entities include location names.
+                         - Return output in strict JSON format as such:
+                
+                         {
+                           "entities": [list of extracted entities],
+                           "intent": [list of inferred intents]
+                         }
+                
+                         Now analyze the given query and respond only with the JSON object. 
+                         Query: "%s"
+                
+            """.formatted(userQuery).stripIndent();
 
         String rawResponse = openRouterClient.callModel(prompt);
 

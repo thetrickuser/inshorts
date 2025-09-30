@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LlmIntentResponse {
-    private String intent;           // "category", "source", "search", "nearby", "score"
+    private List<String> intent;           // "category", "source", "search", "nearby", "score"
     private List<String> entities;   // ["Elon Musk", "Twitter", "Palo Alto"]
 }

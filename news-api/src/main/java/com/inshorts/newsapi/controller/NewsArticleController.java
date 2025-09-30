@@ -56,7 +56,7 @@ public class NewsArticleController {
         LlmIntentResponse parsed = llmService.processQuery(text);
         List<NewsArticleDTO> articles;
 
-        switch (parsed.getIntent()) {
+        switch (parsed.getIntent().get(0)) {
             case "category":
                 articles = service.getByCategory(String.valueOf(parsed.getEntities()));
                 break;
